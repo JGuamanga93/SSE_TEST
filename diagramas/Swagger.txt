@@ -1,0 +1,65 @@
+Funcionalidades no expuestas al público:
+
+1. Lambda que carga diariamente archivos de dominios a la base de datos
+
+Entradas:
+Recibe un documento con extensión .txt
+
+Proceso:
+Coge cada dominio del archivo recibido y lo inserta en la base de datos dynamoDB
+
+Salida:
+Retorna un json con successful=true si el archivo fue cargado exitosamente, false en caso contrario (se puede enviar un correo 
+notificando el caso fallido y ser almacenado en algún lugar esta información)
+
+2. Lambda que calcula la similitud de ese dominio con mi listado de clientes
+Entradas:
+Recibe un dominio y el listado de clientes que actualmente tiene la compañia
+
+Proceso:
+Calcula la similitud del dominio entrante con cada dominio presente en el listado de clientes. Luego guarda 
+el resultado en postgresql en una tabl llamada domain_phishing con la siguiente información: id, 
+domainClient, domainoPhishing, similarity
+
+Salida:
+Retorna un json con successful= true si todo se hizo correctamente, de lo contrario false
+
+Funcionalidades expuestas al público:
+
+1. Endpoint que consulta un dominio con sus similares y guarda la información en un json
+
+Entradas:
+Dominio a buscar, porcentaje aceptado como similitud
+
+Proceso:
+Consulta en la tabla llamada domain_phishing todos los dominios que coinciden con 
+domainClient= dominio_a_buscar y similarity=porcetaje_similitud_aceptado. Luego construye un json con la 
+siguiente estructura:
+{
+    dominio:"bancolombia.com",
+    dominios_similares:[],
+    dominios_sim_punycode:[]
+    similitud:
+}
+Esto se guarda en una tabla en postgresql llamada domain_phishing_group_by_similarity.
+
+Salida:
+Se retorna el json que fue contruido (opcional)
+
+Recurso: domain/phishingBySimilarity
+Metodo: Post
+
+2. Endpoint para consultar dominios no detectados
+
+Entradas:
+Dominio no detectado a buscar
+
+Proceso:
+Consulta en la tabla llamada domain_phishing todos los dominios que coinciden con 
+domainClient= dominio_a_buscar 
+
+Salida:
+Se retorna un json con todos los campos que tiene la tabla domain_phishing
+
+Recurso: domain/phishing
+Metodo: Get
