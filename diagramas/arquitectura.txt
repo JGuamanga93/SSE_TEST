@@ -19,7 +19,7 @@ Recibe un dominio y el listado de clientes que actualmente tiene la compañia
 Proceso:
 Calcula la similitud del dominio entrante con cada dominio presente en el listado de clientes. Luego guarda 
 el resultado en postgresql en una tabl llamada domain_phishing con la siguiente información: id, 
-domainClient, domainoPhishing, similarity
+domainClient, domainPhishing, similarity, is_punycode
 
 Salida:
 Retorna un json con successful= true si todo se hizo correctamente, de lo contrario false
@@ -41,10 +41,9 @@ siguiente estructura:
     dominios_sim_punycode:[]
     similitud:
 }
-Esto se guarda en una tabla en postgresql llamada domain_phishing_group_by_similarity.
 
 Salida:
-Se retorna el json que fue contruido (opcional)
+Se retorna el json que fue contruido 
 
 Recurso: domain/phishingBySimilarity
 Metodo: Post
@@ -52,14 +51,15 @@ Metodo: Post
 2. Endpoint para consultar dominios no detectados
 
 Entradas:
-Dominio no detectado a buscar
+Dominio original, dominio no detectado a buscar (posible phishing)
 
 Proceso:
 Consulta en la tabla llamada domain_phishing todos los dominios que coinciden con 
-domainClient= dominio_a_buscar 
+domainClient= dominio_original y domainPhishing = dominio_no_detectado
 
 Salida:
-Se retorna un json con todos los campos que tiene la tabla domain_phishing
+Se retorna un json con todos los campos que tiene la tabla domain_phishing en caso de encontrarlo, si no se
+encuentra retorna un mensaje diciendo que el dominio no ha sido detectado.
 
 Recurso: domain/phishing
 Metodo: Get
